@@ -195,21 +195,23 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
         },
       }}
     >
-      <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-            <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
+      <CardContent sx={{ p: { xs: 1.5, md: 2 }, '&:last-child': { pb: { xs: 1.5, md: 2 } } }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: { xs: 1, md: 2 } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, md: 1 }, flexWrap: 'wrap' }}>
+            <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main', fontSize: { xs: '0.95rem', md: '1.25rem' } }}>
               {child.name}
             </Typography>
             {mealStatus && !currentEntry.isAbsent && (
               <Chip 
-                icon={<RestaurantIcon />} 
+                icon={<RestaurantIcon sx={{ fontSize: { xs: '0.9rem', md: '1rem' } }} />} 
                 label="Repas" 
                 size="small" 
                 sx={{
                   background: 'linear-gradient(135deg, #f48fb1 0%, #f06292 100%)',
                   color: 'white',
                   fontWeight: 500,
+                  fontSize: { xs: '0.7rem', md: '0.8125rem' },
+                  height: { xs: '22px', md: '24px' },
                 }}
               />
             )}
@@ -221,6 +223,8 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
                   background: 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)',
                   color: 'white',
                   fontWeight: 500,
+                  fontSize: { xs: '0.7rem', md: '0.8125rem' },
+                  height: { xs: '22px', md: '24px' },
                 }}
               />
             )}
@@ -232,6 +236,8 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
                   background: 'linear-gradient(135deg, #7e57c2 0%, #5e35b1 100%)',
                   color: 'white',
                   fontWeight: 600,
+                  fontSize: { xs: '0.7rem', md: '0.8125rem' },
+                  height: { xs: '22px', md: '24px' },
                 }}
               />
             )}
@@ -272,7 +278,7 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
 
         {/* Quick Status */}
         {!expanded && !currentEntry.isAbsent && (
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', gap: { xs: 0.5, md: 1 }, flexWrap: 'wrap' }}>
             {currentEntry.segments.map((segment, idx) => (
               <Chip
                 key={segment.id}
@@ -291,6 +297,8 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
                   color: segment.arrivalTime ? 'white' : 'text.secondary',
                   border: segment.arrivalTime ? 'none' : '1px solid #e0e0e0',
                   fontWeight: 500,
+                  fontSize: { xs: '0.7rem', md: '0.8125rem' },
+                  height: { xs: '22px', md: '24px' },
                 }}
               />
             ))}
@@ -302,16 +310,16 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
             sx={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: 1,
-              p: 1.5,
+              gap: { xs: 0.5, md: 1 },
+              p: { xs: 1, md: 1.5 },
               borderRadius: 2,
               bgcolor: 'error.light',
               border: '2px solid',
               borderColor: 'error.main',
             }}
           >
-            <EventBusyIcon sx={{ color: 'error.dark' }} />
-            <Typography variant="body2" sx={{ color: 'error.dark', fontWeight: 600 }}>
+            <EventBusyIcon sx={{ color: 'error.dark', fontSize: { xs: '1rem', md: '1.25rem' } }} />
+            <Typography variant="body2" sx={{ color: 'error.dark', fontWeight: 600, fontSize: { xs: '0.8rem', md: '0.875rem' } }}>
               Absent {currentEntry.absenceReason && `• ${currentEntry.absenceReason}`}
             </Typography>
           </Box>
@@ -319,7 +327,7 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
 
         {/* Detailed View */}
         <Collapse in={expanded}>
-          <Box sx={{ mt: 2 }}>
+          <Box sx={{ mt: { xs: 1, md: 2 } }}>
             <FormControlLabel
               control={
                 <Checkbox

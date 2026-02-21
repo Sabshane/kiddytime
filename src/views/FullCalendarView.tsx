@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Paper, Typography, Chip, useTheme } from '@mui/material';
+import { Box, Paper, Typography, Chip, useTheme, useMediaQuery } from '@mui/material';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -12,6 +12,7 @@ import { EventInput } from '@fullcalendar/core';
 
 const FullCalendarView: React.FC = () => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [children, setChildren] = useState<Child[]>([]);
   const [entries, setEntries] = useState<TimeEntry[]>([]);
   const [events, setEvents] = useState<EventInput[]>([]);
@@ -130,14 +131,14 @@ const FullCalendarView: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 3, pb: 10 }}>
+    <Box sx={{ p: { xs: 1.5, md: 3 }, pb: 10 }}>
       {/* Header */}
       <Box
         sx={{
-          mb: 3,
+          mb: { xs: 2, md: 3 },
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           borderRadius: 2,
-          p: 3,
+          p: { xs: 2, md: 3 },
           boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)',
         }}
       >
@@ -147,11 +148,12 @@ const FullCalendarView: React.FC = () => {
             color: 'white',
             fontWeight: 700,
             mb: 1,
+            fontSize: { xs: '1.3rem', md: '2rem' },
           }}
         >
           📅 Vue Calendrier
         </Typography>
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+        <Box sx={{ display: 'flex', gap: { xs: 0.5, md: 1 }, flexWrap: 'wrap' }}>
           {children.map((child, index) => {
             const colors = [
               theme.palette.primary.main,
@@ -171,6 +173,8 @@ const FullCalendarView: React.FC = () => {
                   bgcolor: color,
                   color: 'white',
                   fontWeight: 500,
+                  fontSize: { xs: '0.7rem', md: '0.8125rem' },
+                  height: { xs: '22px', md: '24px' },
                 }}
               />
             );
@@ -182,7 +186,7 @@ const FullCalendarView: React.FC = () => {
       <Paper 
         elevation={3} 
         sx={{ 
-          p: 2,
+          p: { xs: 1, md: 2 },
           borderRadius: 2,
           '& .fc': {
             fontFamily: theme.typography.fontFamily,
@@ -190,6 +194,8 @@ const FullCalendarView: React.FC = () => {
           '& .fc-button': {
             backgroundColor: theme.palette.primary.main,
             borderColor: theme.palette.primary.main,
+            fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+            padding: { xs: '4px 8px', sm: '6px 12px', md: '8px 16px' },
             '&:hover': {
               backgroundColor: theme.palette.primary.dark,
             },
@@ -204,29 +210,60 @@ const FullCalendarView: React.FC = () => {
           '& .fc-today-button': {
             backgroundColor: theme.palette.secondary.light,
           },
+          '& .fc-toolbar': {
+            flexDirection: { xs: 'column', md: 'row' },
+            gap: { xs: 1, md: 0 },
+            marginBottom: { xs: '1rem', md: '1.5rem' },
+          },
+          '& .fc-toolbar-chunk': {
+            display: 'flex',
+            justifyContent: { xs: 'center', md: 'flex-start' },
+            marginBottom: { xs: '0.5rem', md: 0 },
+          },
+          '& .fc-toolbar-title': {
+            fontSize: { xs: '1.1rem', sm: '1.3rem', md: '1.5rem' },
+            fontWeight: 600,
+          },
           '& .fc-daygrid-day.fc-day-today': {
             backgroundColor: 'rgba(244, 143, 177, 0.1)',
           },
           '& .fc-col-header-cell': {
             backgroundColor: theme.palette.grey[100],
             fontWeight: 600,
+            fontSize: { xs: '0.75rem', md: '0.875rem' },
+            padding: { xs: '4px', md: '8px' },
+          },
+          '& .fc-daygrid-day-number': {
+            fontSize: { xs: '0.8rem', md: '0.875rem' },
+            padding: { xs: '2px', md: '4px' },
           },
           '& .fc-event': {
             cursor: 'pointer',
+            fontSize: { xs: '0.7rem', md: '0.8125rem' },
             '&:hover': {
               opacity: 0.8,
             },
+          },
+          '& .fc-daygrid-event': {
+            marginTop: { xs: '1px', md: '2px' },
           },
         }}
       >
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
           initialView="dayGridMonth"
-          headerToolbar={{
+          headerToolbar={isMobile ? {
+            left: 'prev,next',
+            center: 'title',
+            right: 'today',
+          } : {
             left: 'prev,next today',
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
           }}
+          footerToolbar={isMobile ? {
+            center: 'dayGridMonth,listWeek',
+          } : undefined}
           locale={frLocale}
           events={events}
           eventClick={handleEventClick}
@@ -234,11 +271,17 @@ const FullCalendarView: React.FC = () => {
           slotMinTime="06:00:00"
           slotMaxTime="20:00:00"
           allDaySlot={true}
-          weekends={true}
+          weekends={false}
           editable={false}
           selectable={false}
           firstDay={1} // Monday
-          buttonText={{
+          buttonText={isMobile ? {
+            today: "Auj.",
+            month: 'Mois',
+            week: 'Sem.',
+            day: 'Jour',
+            list: 'Liste',
+          } : {
             today: "Aujourd'hui",
             month: 'Mois',
             week: 'Semaine',

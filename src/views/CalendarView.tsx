@@ -223,11 +223,21 @@ const CalendarView: React.FC = () => {
     } else if (viewMode === 'week') {
       const start = startOfWeek(currentDate, { weekStartsOn: 1 });
       const end = endOfWeek(currentDate, { weekStartsOn: 1 });
-      return eachDayOfInterval({ start, end });
+      const allDays = eachDayOfInterval({ start, end });
+      // Filter out weekends (Saturday=6, Sunday=0)
+      return allDays.filter(date => {
+        const day = date.getDay();
+        return day !== 0 && day !== 6;
+      });
     } else {
       const start = startOfMonth(currentDate);
       const end = endOfMonth(currentDate);
-      return eachDayOfInterval({ start, end });
+      const allDays = eachDayOfInterval({ start, end });
+      // Filter out weekends
+      return allDays.filter(date => {
+        const day = date.getDay();
+        return day !== 0 && day !== 6;
+      });
     }
   };
 
@@ -270,21 +280,21 @@ const CalendarView: React.FC = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 10 }}>
+    <Container maxWidth="lg" sx={{ mt: { xs: 2, md: 4 }, mb: 10, px: { xs: 1, sm: 2, md: 3 } }}>
       <Box 
         sx={{ 
-          mb: 3, 
-          p: 3,
+          mb: { xs: 2, md: 3 }, 
+          p: { xs: 2, md: 3 },
           borderRadius: 3,
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)',
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-          <Typography variant="h4" component="h1" sx={{ color: 'white', fontWeight: 700 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: { xs: 1, md: 2 } }}>
+          <Typography variant="h4" component="h1" sx={{ color: 'white', fontWeight: 700, fontSize: { xs: '1.5rem', md: '2rem' } }}>
             📅 Calendrier
           </Typography>
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', gap: { xs: 1, md: 2 }, alignItems: 'center', flexWrap: 'wrap' }}>
             <Button
               variant="contained"
               startIcon={<TodayIcon />}
@@ -395,18 +405,18 @@ const CalendarView: React.FC = () => {
 
       {/* Day and Week View - One date at a time with all children */}
       {(viewMode === 'day' || viewMode === 'week') && (
-        <Grid container spacing={3}>
+        <Grid container spacing={{ xs: 2, md: 3 }}>
           {displayDates.map((date) => {
             const dateStr = format(date, 'yyyy-MM-dd');
             const isToday = format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
             
             return (
-              <Grid item xs={12} md={viewMode === 'day' ? 12 : 6} lg={viewMode === 'day' ? 12 : 4} key={dateStr}>
+              <Grid item xs={12} sm={viewMode === 'week' ? 6 : 12} md={viewMode === 'day' ? 12 : 6} lg={viewMode === 'day' ? 12 : 4} key={dateStr}>
                 <Paper 
                   elevation={isToday ? 8 : 2}
                   sx={{ 
-                    p: 3, 
-                    borderRadius: 3,
+                    p: { xs: 2, md: 3 }, 
+                    borderRadius: { xs: 2, md: 3 },
                     background: isToday 
                       ? 'linear-gradient(135deg, #f8bbd0 0%, #f48fb1 50%, #f06292 100%)'
                       : 'white',
@@ -419,13 +429,14 @@ const CalendarView: React.FC = () => {
                     },
                   }}
                 >
-                  <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box sx={{ mb: { xs: 1.5, md: 2 }, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
                     <Typography 
                       variant="h6" 
                       sx={{ 
                         textTransform: 'capitalize',
                         fontWeight: 700,
                         color: isToday ? 'white' : 'primary.main',
+                        fontSize: { xs: '1rem', md: '1.25rem' },
                       }}
                     >
                       {format(date, 'EEEE d MMMM', { locale: fr })}
@@ -438,6 +449,7 @@ const CalendarView: React.FC = () => {
                           bgcolor: 'white',
                           color: 'secondary.main',
                           fontWeight: 700,
+                          fontSize: { xs: '0.7rem', md: '0.8125rem' },
                         }}
                       />
                     )}
@@ -455,8 +467,8 @@ const CalendarView: React.FC = () => {
                   
                   {/* Show hidden children */}
                   {getHiddenChildrenForDate(dateStr).length > 0 && (
-                    <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 2 }}>
-                      <Typography variant="caption" sx={{ color: 'text.secondary', mb: 1, display: 'block' }}>
+                    <Box sx={{ mt: { xs: 1.5, md: 2 }, p: { xs: 1.5, md: 2 }, bgcolor: 'grey.50', borderRadius: 2 }}>
+                      <Typography variant="caption" sx={{ color: 'text.secondary', mb: 1, display: 'block', fontSize: { xs: '0.7rem', md: '0.75rem' } }}>
                         Enfants masqués ({getHiddenChildrenForDate(dateStr).length})
                       </Typography>
                       <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
@@ -487,7 +499,9 @@ const CalendarView: React.FC = () => {
                       size="small"
                       onClick={() => toggleShowAllChildren(dateStr)}
                       sx={{ 
-                        mt: 2,
+                        mt: { xs: 1.5, md: 2 },
+                        py: { xs: 0.75, md: 1 },
+                        fontSize: { xs: '0.8rem', md: '0.875rem' },
                         borderStyle: 'dashed',
                         color: 'primary.main',
                         '&:hover': {
@@ -507,7 +521,9 @@ const CalendarView: React.FC = () => {
                       size="small"
                       onClick={() => toggleShowAllChildren(dateStr)}
                       sx={{ 
-                        mt: 2,
+                        mt: { xs: 1.5, md: 2 },
+                        py: { xs: 0.75, md: 1 },
+                        fontSize: { xs: '0.8rem', md: '0.875rem' },
                         color: 'text.secondary',
                       }}
                     >
@@ -525,11 +541,11 @@ const CalendarView: React.FC = () => {
       {viewMode === 'month' && (
         <Box>
           {children.map((child) => (
-            <Paper key={child.id} sx={{ p: 2, mb: 2 }}>
-              <Typography variant="h6" gutterBottom>
+            <Paper key={child.id} sx={{ p: { xs: 1.5, md: 2 }, mb: { xs: 1.5, md: 2 }, borderRadius: { xs: 2, md: 3 } }}>
+              <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}>
                 {child.name}
               </Typography>
-              <Grid container spacing={1}>
+              <Grid container spacing={{ xs: 0.5, md: 1 }}>
                 {displayDates.map((date) => {
                   const dateStr = format(date, 'yyyy-MM-dd');
                   const entry = getEntry(child.id, dateStr);
@@ -540,21 +556,22 @@ const CalendarView: React.FC = () => {
                   );
 
                   return (
-                    <Grid item xs={12} sm={6} md={4} lg={3} key={dateStr}>
+                    <Grid item xs={6} sm={4} md={4} lg={3} key={dateStr}>
                       <Box
                         sx={{
-                          p: 1,
+                          p: { xs: 0.75, md: 1 },
                           border: '1px solid',
                           borderColor: isToday ? 'primary.main' : hasData ? 'success.light' : 'divider',
                           borderRadius: 1,
                           bgcolor: entry?.isAbsent ? '#ffebee' : isToday ? 'primary.50' : 'background.paper',
                           cursor: 'pointer',
+                          minHeight: { xs: '60px', md: '80px' },
                           '&:hover': {
                             bgcolor: 'action.hover',
                           },
                         }}
                       >
-                        <Typography variant="caption" sx={{ fontWeight: isToday ? 'bold' : 'normal' }}>
+                        <Typography variant="caption" sx={{ fontWeight: isToday ? 'bold' : 'normal', fontSize: { xs: '0.7rem', md: '0.75rem' } }}>
                           {format(date, 'd MMM', { locale: fr })}
                         </Typography>
                         <DayEntryCard
