@@ -22,6 +22,7 @@ import RestaurantIcon from '@mui/icons-material/Restaurant';
 import EventBusyIcon from '@mui/icons-material/EventBusy';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import CloseIcon from '@mui/icons-material/Close';
 import { Child, TimeEntry, TimeSegment } from '../types';
 import { shouldHaveMeal, shouldHaveSnack } from '../utils/timeUtils';
 
@@ -33,9 +34,10 @@ interface DayEntryCardProps {
   entry: TimeEntry | undefined;
   date: string;
   onUpdate: (entry: TimeEntry) => void;
+  onHide?: () => void; // Callback to hide this child for this date
 }
 
-const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdate }) => {
+const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdate, onHide }) => {
   const [expanded, setExpanded] = useState(false);
   
   // Work directly with props, no local state
@@ -234,19 +236,38 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
               />
             )}
           </Box>
-          <IconButton 
-            size="small" 
-            onClick={() => setExpanded(!expanded)}
-            sx={{
-              bgcolor: expanded ? 'primary.light' : 'grey.100',
-              '&:hover': {
-                bgcolor: expanded ? 'primary.main' : 'primary.light',
-                color: 'white',
-              },
-            }}
-          >
-            {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-          </IconButton>
+          <Box sx={{ display: 'flex', gap: 0.5 }}>
+            {/* Hide button - only show if no data and onHide provided */}
+            {onHide && !hasData && (
+              <IconButton 
+                size="small" 
+                onClick={onHide}
+                sx={{
+                  bgcolor: 'grey.100',
+                  '&:hover': {
+                    bgcolor: 'error.light',
+                    color: 'error.main',
+                  },
+                }}
+                title="Masquer cet enfant pour ce jour"
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            )}
+            <IconButton 
+              size="small" 
+              onClick={() => setExpanded(!expanded)}
+              sx={{
+                bgcolor: expanded ? 'primary.light' : 'grey.100',
+                '&:hover': {
+                  bgcolor: expanded ? 'primary.main' : 'primary.light',
+                  color: 'white',
+                },
+              }}
+            >
+              {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            </IconButton>
+          </Box>
         </Box>
 
         {/* Quick Status */}

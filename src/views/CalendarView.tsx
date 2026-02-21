@@ -28,6 +28,7 @@ const CalendarView: React.FC = () => {
   const [children, setChildren] = useState<Child[]>([]);
   const [entries, setEntries] = useState<TimeEntry[]>([]);
   const [showAllChildren, setShowAllChildren] = useState<{[key: string]: boolean}>({});
+  const [hiddenChildren, setHiddenChildren] = useState<{[key: string]: string[]}>({}) // {dateStr: [childId, ...]}
 
   // Helper: Get expected children for a specific date
   const getExpectedChildrenForDate = (date: Date): Child[] => {
@@ -51,17 +52,49 @@ const CalendarView: React.FC = () => {
     });
   };
 
-  // Helper: Get all children to display for a date (expected + unexpected if toggled)
+  // Helper: Check if a child is hidden for a specific date
+  const isChildHidden = (childId: string, dateStr: string): boolean => {
+    return hiddenChildren[dateStr]?.includes(childId) || false;
+  };
+
+  // Helper: Hide a child for a specific date
+  const hideChild = (childId: string, dateStr: string) => {
+    setHiddenChildren(prev => ({
+      ...prev,
+      [dateStr]: [...(prev[dateStr] || []), childId]
+    }));
+  };
+
+  // Helper: Show a hidden child for a specific date
+  const showChild = (childId: string, dateStr: string) => {
+    setHiddenChildren(prev => ({
+      ...prev,
+      [dateStr]: (prev[dateStr] || []).filter(id => id !== childId)
+    }));
+  };
+
+  // Helper: Get all children to display for a date (expected + unexpected if toggled, minus hidden)
   const getChildrenForDate = (date: Date): Child[] => {
     const dateStr = format(date, 'yyyy-MM-dd');
     const expected = getExpectedChildrenForDate(date);
     const unexpected = getUnexpectedChildrenForDate(date);
     
+    let childrenToShow: Child[];
+    
     if (showAllChildren[dateStr]) {
-      return children;
+      childrenToShow = children;
+    } else {
+      childrenToShow = [...expected, ...unexpected];
     }
     
-    return [...expected, ...unexpected];
+    // Filter out hidden children
+    return childrenToShow.filter(child => !isChildHidden(child.id, dateStr));
+  };
+
+  // Helper: Get hidden children for a specific date
+  const getHiddenChildrenForDate = (dateStr: string): Child[] => {
+    const hiddenIds = hiddenChildren[dateStr] || [];
+    return children.filter(child => hiddenIds.includes(child.id));
   };
 
   // Toggle showing all children for a specific date
@@ -416,8 +449,35 @@ const CalendarView: React.FC = () => {
                       entry={getEntry(child.id, dateStr)}
                       date={dateStr}
                       onUpdate={handleEntryUpdate}
+                      onHide={() => hideChild(child.id, dateStr)}
                     />
                   ))}
+                  
+                  {/* Show hidden children */}
+                  {getHiddenChildrenForDate(dateStr).length > 0 && (
+                    <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 2 }}>
+                      <Typography variant="caption" sx={{ color: 'text.secondary', mb: 1, display: 'block' }}>
+                        Enfants masqués ({getHiddenChildrenForDate(dateStr).length})
+                      </Typography>
+                      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                        {getHiddenChildrenForDate(dateStr).map((child) => (
+                          <Chip
+                            key={child.id}
+                            label={child.name}
+                            size="small"
+                            onDelete={() => showChild(child.id, dateStr)}
+                            sx={{
+                              bgcolor: 'white',
+                              '&:hover': {
+                                bgcolor: 'primary.light',
+                                color: 'white',
+                              },
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    </Box>
+                  )}
                   
                   {/* Button to show/hide all children */}
                   {!showAllChildren[dateStr] && getChildrenForDate(date).length < children.length && (
