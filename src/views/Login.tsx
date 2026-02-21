@@ -42,23 +42,45 @@ const Login: React.FC = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      }}
+    >
+      <Container component="main" maxWidth="xs">
+        <Paper 
+          elevation={24} 
+          sx={{ 
+            p: 4, 
+            borderRadius: 3,
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+          }}
+        >
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <LockOutlinedIcon sx={{ fontSize: 40, color: 'primary.main', mb: 2 }} />
-            <Typography component="h1" variant="h5" gutterBottom>
+            <Box
+              sx={{
+                width: 80,
+                height: 80,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 2,
+                boxShadow: '0 8px 32px rgba(102, 126, 234, 0.4)',
+              }}
+            >
+              <LockOutlinedIcon sx={{ fontSize: 40, color: 'white' }} />
+            </Box>
+            <Typography component="h1" variant="h4" fontWeight="bold" gutterBottom>
               KiddyTime
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              {hasPassword ? 'Connexion' : 'Créer un mot de passe'}
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+              {hasPassword ? '🔐 Connexion' : '🎉 Créer un mot de passe'}
             </Typography>
           </Box>
 
@@ -74,6 +96,13 @@ const Login: React.FC = () => {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPasswordInput(e.target.value)}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '&:hover fieldset': {
+                    borderColor: 'primary.main',
+                  },
+                },
+              }}
             />
 
             {!hasPassword && (
@@ -87,11 +116,18 @@ const Login: React.FC = () => {
                 id="confirmPassword"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '&:hover fieldset': {
+                      borderColor: 'primary.main',
+                    },
+                  },
+                }}
               />
             )}
 
             {error && (
-              <Alert severity="error" sx={{ mt: 2 }}>
+              <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>
                 {error}
               </Alert>
             )}
@@ -100,14 +136,26 @@ const Login: React.FC = () => {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              size="large"
+              sx={{ 
+                mt: 3, 
+                mb: 2,
+                py: 1.5,
+                borderRadius: 2,
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                boxShadow: '0 4px 20px rgba(102, 126, 234, 0.4)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
+                  boxShadow: '0 6px 24px rgba(102, 126, 234, 0.5)',
+                },
+              }}
             >
-              {hasPassword ? 'Se connecter' : 'Créer le mot de passe'}
+              {hasPassword ? '🚀 Se connecter' : '✨ Créer le mot de passe'}
             </Button>
           </form>
         </Paper>
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   );
 };
 

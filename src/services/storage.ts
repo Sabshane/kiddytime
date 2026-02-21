@@ -1,5 +1,6 @@
 import { Child, TimeEntry } from "../types";
 import { api } from "./api";
+import { migrateChild, migrateTimeEntry } from "../utils/migration";
 
 export const StorageService = {
   // Password Management
@@ -39,7 +40,8 @@ export const StorageService = {
   // Children Management
   async getChildren(): Promise<Child[]> {
     try {
-      return await api.children.getAll();
+      const children = await api.children.getAll();
+      return children.map(migrateChild);
     } catch (error) {
       console.error("Error getting children:", error);
       return [];
@@ -64,7 +66,8 @@ export const StorageService = {
     const startDate = "2020-01-01";
     const endDate = "2099-12-31";
     try {
-      return await api.entries.getByDateRange(startDate, endDate);
+      const entries = await api.entries.getByDateRange(startDate, endDate);
+      return entries.map(migrateTimeEntry);
     } catch (error) {
       console.error("Error getting entries:", error);
       return [];
@@ -76,7 +79,8 @@ export const StorageService = {
     date: string,
   ): Promise<TimeEntry | undefined> {
     try {
-      return await api.entries.getByChildAndDate(childId, date);
+      const entry = await api.entries.getByChildAndDate(childId, date);
+      return entry ? migrateTimeEntry(entry) : undefined;
     } catch (error) {
       // 404 is expected if entry doesn't exist
       return undefined;
@@ -92,7 +96,8 @@ export const StorageService = {
     endDate: string,
   ): Promise<TimeEntry[]> {
     try {
-      return await api.entries.getByDateRange(startDate, endDate);
+      const entries = await api.entries.getByDateRange(startDate, endDate);
+      return entries.map(migrateTimeEntry);
     } catch (error) {
       console.error("Error getting entries for date range:", error);
       return [];
