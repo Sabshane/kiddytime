@@ -23,6 +23,7 @@ import EventBusyIcon from '@mui/icons-material/EventBusy';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { Child, TimeEntry, TimeSegment } from '../types';
+import { shouldHaveMeal, shouldHaveSnack } from '../utils/timeUtils';
 
 // Predefined absence reasons
 const ABSENCE_REASONS = ['Malade', 'Vacances', 'Autre'];
@@ -45,6 +46,7 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
     segments: [{ id: '1', arrivalTime: null, leavingTime: null }],
     isAbsent: false,
     hasMeal: null,
+    hasSnack: null,
     notes: '',
   };
   
@@ -126,6 +128,10 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
     onUpdate({ ...currentEntry, hasMeal });
   };
 
+  const handleSnackChange = (hasSnack: boolean) => {
+    onUpdate({ ...currentEntry, hasSnack });
+  };
+
   const calculateTotalDuration = () => {
     let totalMinutes = 0;
     currentEntry.segments.forEach(segment => {
@@ -145,7 +151,19 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
   const hasData = currentEntry.segments.some(seg => seg.arrivalTime || seg.leavingTime) || 
                   currentEntry.isAbsent;
 
-  const mealStatus = currentEntry.hasMeal ?? child.hasMeal;
+  // Déterminer si l'enfant prend le repas/goûter en fonction des horaires
+  const autoMeal = shouldHaveMeal(currentEntry.segments);
+  const autoSnack = shouldHaveSnack(currentEntry.segments);
+  
+  // Utiliser la valeur explicite, sinon la valeur auto calculée, sinon le défaut de l'enfant
+  const mealStatus = currentEntry.hasMeal !== null 
+    ? currentEntry.hasMeal 
+    : (autoMeal ? true : child.hasMeal);
+  
+  const snackStatus = currentEntry.hasSnack !== null 
+    ? currentEntry.hasSnack 
+    : (autoSnack ? true : child.hasSnack);
+  
   const duration = calculateTotalDuration();
 
   return (
@@ -188,6 +206,17 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
                 size="small" 
                 sx={{
                   background: 'linear-gradient(135deg, #f48fb1 0%, #f06292 100%)',
+                  color: 'white',
+                  fontWeight: 500,
+                }}
+              />
+            )}
+            {snackStatus && !currentEntry.isAbsent && (
+              <Chip 
+                label="🍪 Goûter" 
+                size="small" 
+                sx={{
+                  background: 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)',
                   color: 'white',
                   fontWeight: 500,
                 }}
@@ -361,12 +390,24 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
                 <FormControlLabel
                   control={
                     <Checkbox
-                      checked={currentEntry.hasMeal ?? child.hasMeal}
+                      checked={mealStatus}
                       onChange={(e) => handleMealChange(e.target.checked)}
                     />
                   }
                   label="Prend le repas"
                   sx={{ mt: 2 }}
+                />
+
+                {/* Snack Checkbox */}
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={snackStatus}
+                      onChange={(e) => handleSnackChange(e.target.checked)}
+                    />
+                  }
+                  label="Prend le goûter"
+                  sx={{ mt: 1 }}
                 />
 
                 {/* Notes */}

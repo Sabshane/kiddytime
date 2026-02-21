@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Child, TimeEntry } from "../types";
+import { shouldHaveMeal, shouldHaveSnack } from "./timeUtils";
 
 /**
  * Convert data to CSV format and trigger download
@@ -48,6 +49,7 @@ export const exportTimeEntries = (
     "Segments horaires",
     "Durée totale",
     "Repas",
+    "Goûter",
     "Raison absence",
     "Notes",
   ];
@@ -82,7 +84,30 @@ export const exportTimeEntries = (
         let status = "Non renseigné";
         let segmentsText = "-";
         let duration = "-";
-        const hasMeal = (entry.hasMeal ?? child.hasMeal) ? "Oui" : "Non";
+
+        // Calculate meal and snack status with auto-detection
+        const autoMeal = shouldHaveMeal(entry.segments);
+        const autoSnack = shouldHaveSnack(entry.segments);
+        const hasMeal =
+          entry.hasMeal !== null
+            ? entry.hasMeal
+              ? "Oui"
+              : "Non"
+            : autoMeal
+              ? "Oui"
+              : child.hasMeal
+                ? "Oui"
+                : "Non";
+        const hasSnack =
+          entry.hasSnack !== null
+            ? entry.hasSnack
+              ? "Oui"
+              : "Non"
+            : autoSnack
+              ? "Oui"
+              : child.hasSnack
+                ? "Oui"
+                : "Non";
 
         if (entry.isAbsent) {
           status = "Absent";
@@ -131,6 +156,7 @@ export const exportTimeEntries = (
           segmentsText,
           duration,
           hasMeal,
+          hasSnack,
           entry.absenceReason || "-",
           entry.notes || "-",
         ]);
@@ -142,6 +168,7 @@ export const exportTimeEntries = (
           "-",
           "-",
           child.hasMeal ? "Oui" : "Non",
+          child.hasSnack ? "Oui" : "Non",
           "-",
           "-",
         ]);
@@ -166,6 +193,7 @@ export const exportChildrenList = (children: Child[]) => {
     "Heure d'arrivée par défaut",
     "Heure de départ par défaut",
     "Prend le repas",
+    "Prend le goûter",
   ];
 
   const rows: string[][] = [headers];
@@ -176,6 +204,7 @@ export const exportChildrenList = (children: Child[]) => {
       child.defaultArrivalTime || "-",
       child.defaultLeavingTime || "-",
       child.hasMeal ? "Oui" : "Non",
+      child.hasSnack ? "Oui" : "Non",
     ]);
   });
 

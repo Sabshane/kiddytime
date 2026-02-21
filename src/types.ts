@@ -4,6 +4,7 @@ export interface Child {
   defaultArrivalTime: string; // Format: "HH:mm"
   defaultLeavingTime: string; // Format: "HH:mm"
   hasMeal: boolean; // Prend le repas par défaut
+  hasSnack: boolean; // Prend le goûter par défaut
   absentDays?: string[]; // Jours d'absence récurrents (ex: ["wednesday", "friday"])
   photoUrl?: string;
 }
@@ -22,6 +23,7 @@ export interface TimeEntry {
   isAbsent: boolean; // Marqué absent
   absenceReason?: string; // Raison de l'absence
   hasMeal: boolean | null; // null = utiliser la config par défaut de l'enfant
+  hasSnack: boolean | null; // null = utiliser la config par défaut de l'enfant
   notes?: string;
 }
 

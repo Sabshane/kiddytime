@@ -37,6 +37,7 @@ const ChildrenManagement: React.FC = () => {
     defaultArrivalTime: '08:00',
     defaultLeavingTime: '17:00',
     hasMeal: true,
+    hasSnack: true,
   });
 
   useEffect(() => {
@@ -56,6 +57,7 @@ const ChildrenManagement: React.FC = () => {
         defaultArrivalTime: child.defaultArrivalTime,
         defaultLeavingTime: child.defaultLeavingTime,
         hasMeal: child.hasMeal ?? true,
+        hasSnack: child.hasSnack ?? true,
       });
     } else {
       setEditingChild(null);
@@ -64,6 +66,7 @@ const ChildrenManagement: React.FC = () => {
         defaultArrivalTime: '08:00',
         defaultLeavingTime: '17:00',
         hasMeal: true,
+        hasSnack: true,
       });
     }
     setDialogOpen(true);
@@ -207,6 +210,17 @@ const ChildrenManagement: React.FC = () => {
                           }}
                         />
                       )}
+                      {child.hasSnack && (
+                        <Chip 
+                          label="🍪 Goûter" 
+                          size="small" 
+                          sx={{ 
+                            bgcolor: 'warning.light',
+                            color: 'white',
+                            fontWeight: 500,
+                          }}
+                        />
+                      )}
                     </Box>
                   }
                 />
@@ -309,6 +323,16 @@ const ChildrenManagement: React.FC = () => {
               }
               label="Prend le repas par défaut"
               sx={{ mt: 2 }}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={formData.hasSnack}
+                  onChange={(e) => setFormData({ ...formData, hasSnack: e.target.checked })}
+                />
+              }
+              label="Prend le goûter par défaut"
+              sx={{ mt: 1 }}
             />
           </Box>
         </DialogContent>

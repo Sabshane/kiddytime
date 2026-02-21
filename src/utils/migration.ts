@@ -26,6 +26,7 @@ export const migrateTimeEntry = (entry: any): TimeEntry => {
     isAbsent: false,
     absenceReason: "",
     hasMeal: null, // Will use child's default
+    hasSnack: null, // Will use child's default
     notes: entry.notes || "",
   };
 };
@@ -38,6 +39,7 @@ export const migrateChild = (child: any): Child => {
   return {
     ...child,
     hasMeal: child.hasMeal !== undefined ? child.hasMeal : true,
+    hasSnack: child.hasSnack !== undefined ? child.hasSnack : true,
     absentDays: child.absentDays || [],
   };
 };
