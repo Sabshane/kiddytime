@@ -27,6 +27,50 @@ const CalendarView: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [children, setChildren] = useState<Child[]>([]);
   const [entries, setEntries] = useState<TimeEntry[]>([]);
+  const [showAllChildren, setShowAllChildren] = useState<{[key: string]: boolean}>({});
+
+  // Helper: Get expected children for a specific date
+  const getExpectedChildrenForDate = (date: Date): Child[] => {
+    const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    return children.filter(child => child.expectedDays.includes(dayOfWeek));
+  };
+
+  // Helper: Get unexpected children for a specific date (those with entries but not expected)
+  const getUnexpectedChildrenForDate = (date: Date): Child[] => {
+    const dayOfWeek = date.getDay();
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const expectedIds = children
+      .filter(child => child.expectedDays.includes(dayOfWeek))
+      .map(c => c.id);
+    
+    // Find children with entries for this date but not expected
+    return children.filter(child => {
+      if (expectedIds.includes(child.id)) return false;
+      const entry = getEntry(child.id, dateStr);
+      return entry && (entry.segments.some(seg => seg.arrivalTime || seg.leavingTime) || entry.isAbsent);
+    });
+  };
+
+  // Helper: Get all children to display for a date (expected + unexpected if toggled)
+  const getChildrenForDate = (date: Date): Child[] => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const expected = getExpectedChildrenForDate(date);
+    const unexpected = getUnexpectedChildrenForDate(date);
+    
+    if (showAllChildren[dateStr]) {
+      return children;
+    }
+    
+    return [...expected, ...unexpected];
+  };
+
+  // Toggle showing all children for a specific date
+  const toggleShowAllChildren = (dateStr: string) => {
+    setShowAllChildren(prev => ({
+      ...prev,
+      [dateStr]: !prev[dateStr]
+    }));
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -365,7 +409,7 @@ const CalendarView: React.FC = () => {
                       />
                     )}
                   </Box>
-                  {children.map((child) => (
+                  {getChildrenForDate(date).map((child) => (
                     <DayEntryCard
                       key={child.id}
                       child={child}
@@ -374,6 +418,42 @@ const CalendarView: React.FC = () => {
                       onUpdate={handleEntryUpdate}
                     />
                   ))}
+                  
+                  {/* Button to show/hide all children */}
+                  {!showAllChildren[dateStr] && getChildrenForDate(date).length < children.length && (
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      onClick={() => toggleShowAllChildren(dateStr)}
+                      sx={{ 
+                        mt: 2,
+                        borderStyle: 'dashed',
+                        color: 'primary.main',
+                        '&:hover': {
+                          borderStyle: 'dashed',
+                          bgcolor: 'primary.light',
+                          color: 'white',
+                        },
+                      }}
+                    >
+                      + Ajouter un enfant non prévu ({children.length - getChildrenForDate(date).length})
+                    </Button>
+                  )}
+                  {showAllChildren[dateStr] && (
+                    <Button
+                      fullWidth
+                      variant="text"
+                      size="small"
+                      onClick={() => toggleShowAllChildren(dateStr)}
+                      sx={{ 
+                        mt: 2,
+                        color: 'text.secondary',
+                      }}
+                    >
+                      Masquer les enfants non prévus
+                    </Button>
+                  )}
                 </Paper>
               </Grid>
             );

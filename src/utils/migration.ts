@@ -33,13 +33,15 @@ export const migrateTimeEntry = (entry: any): TimeEntry => {
 
 /**
  * Migrate old Child format to new format
- * Adds hasMeal field if missing
+ * Adds hasMeal, hasSnack, expectedDays fields if missing
  */
 export const migrateChild = (child: any): Child => {
   return {
     ...child,
     hasMeal: child.hasMeal !== undefined ? child.hasMeal : true,
     hasSnack: child.hasSnack !== undefined ? child.hasSnack : true,
+    expectedDays:
+      child.expectedDays !== undefined ? child.expectedDays : [1, 2, 3, 4, 5], // Lundi à Vendredi par défaut
     absentDays: child.absentDays || [],
   };
 };

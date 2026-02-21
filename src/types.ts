@@ -5,6 +5,7 @@ export interface Child {
   defaultLeavingTime: string; // Format: "HH:mm"
   hasMeal: boolean; // Prend le repas par défaut
   hasSnack: boolean; // Prend le goûter par défaut
+  expectedDays: number[]; // Jours de présence attendus (0=Dimanche, 1=Lundi, ..., 6=Samedi)
   absentDays?: string[]; // Jours d'absence récurrents (ex: ["wednesday", "friday"])
   photoUrl?: string;
 }

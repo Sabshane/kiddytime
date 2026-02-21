@@ -38,6 +38,7 @@ const children = [
     defaultLeavingTime: "17:00",
     hasMeal: true,
     hasSnack: true,
+    expectedDays: [1, 2, 3, 4, 5], // Lundi à Vendredi
   },
   {
     id: "child-2",
@@ -46,6 +47,7 @@ const children = [
     defaultLeavingTime: "16:30",
     hasMeal: true,
     hasSnack: true,
+    expectedDays: [1, 2, 3, 4, 5], // Lundi à Vendredi
   },
   {
     id: "child-3",
@@ -54,6 +56,7 @@ const children = [
     defaultLeavingTime: "17:30",
     hasMeal: false,
     hasSnack: true,
+    expectedDays: [1, 3, 5], // Lundi, Mercredi, Vendredi
   },
 ];
 

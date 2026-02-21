@@ -19,6 +19,8 @@ import {
   FormControlLabel,
   Checkbox,
   Chip,
+  ToggleButton,
+  ToggleButtonGroup,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -38,6 +40,7 @@ const ChildrenManagement: React.FC = () => {
     defaultLeavingTime: '17:00',
     hasMeal: true,
     hasSnack: true,
+    expectedDays: [1, 2, 3, 4, 5] as number[], // Lundi à Vendredi par défaut
   });
 
   useEffect(() => {
@@ -58,6 +61,7 @@ const ChildrenManagement: React.FC = () => {
         defaultLeavingTime: child.defaultLeavingTime,
         hasMeal: child.hasMeal ?? true,
         hasSnack: child.hasSnack ?? true,
+        expectedDays: child.expectedDays ?? [1, 2, 3, 4, 5],
       });
     } else {
       setEditingChild(null);
@@ -67,6 +71,7 @@ const ChildrenManagement: React.FC = () => {
         defaultLeavingTime: '17:00',
         hasMeal: true,
         hasSnack: true,
+        expectedDays: [1, 2, 3, 4, 5],
       });
     }
     setDialogOpen(true);
@@ -314,6 +319,56 @@ const ChildrenManagement: React.FC = () => {
               margin="normal"
               InputLabelProps={{ shrink: true }}
             />
+            
+            {/* Sélecteur des jours de présence attendus */}
+            <Box sx={{ mt: 3, mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                Jours de présence attendus
+              </Typography>
+              <ToggleButtonGroup
+                value={formData.expectedDays}
+                onChange={(_, newDays) => {
+                  if (newDays.length > 0) {
+                    setFormData({ ...formData, expectedDays: newDays.sort((a, b) => a - b) });
+                  }
+                }}
+                aria-label="jours de présence"
+                sx={{ 
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 0.5,
+                }}
+              >
+                {[
+                  { value: 1, label: 'Lun' },
+                  { value: 2, label: 'Mar' },
+                  { value: 3, label: 'Mer' },
+                  { value: 4, label: 'Jeu' },
+                  { value: 5, label: 'Ven' },
+                  { value: 6, label: 'Sam' },
+                  { value: 0, label: 'Dim' },
+                ].map((day) => (
+                  <ToggleButton
+                    key={day.value}
+                    value={day.value}
+                    sx={{
+                      flex: '1 0 auto',
+                      minWidth: 45,
+                      '&.Mui-selected': {
+                        bgcolor: 'primary.main',
+                        color: 'white',
+                        '&:hover': {
+                          bgcolor: 'primary.dark',
+                        },
+                      },
+                    }}
+                  >
+                    {day.label}
+                  </ToggleButton>
+                ))}
+              </ToggleButtonGroup>
+            </Box>
+
             <FormControlLabel
               control={
                 <Checkbox
