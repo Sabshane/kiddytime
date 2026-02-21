@@ -26,6 +26,16 @@ export const StorageService = {
     }
   },
 
+  async checkAuth(): Promise<boolean> {
+    try {
+      const response = await api.auth.check();
+      return response.isAuthenticated;
+    } catch (error) {
+      console.error("Error checking auth:", error);
+      return false;
+    }
+  },
+
   // Children Management
   async getChildren(): Promise<Child[]> {
     try {

@@ -17,12 +17,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkPassword = async () => {
-      const hasPwd = await StorageService.hasPassword();
-      setHasPassword(hasPwd);
-      setLoading(false);
+    const checkAuthStatus = async () => {
+      try {
+        // Check if password exists
+        const hasPwd = await StorageService.hasPassword();
+        setHasPassword(hasPwd);
+        
+        // Check if user has an active session
+        if (hasPwd) {
+          const authStatus = await StorageService.checkAuth();
+          setIsAuthenticated(authStatus);
+        }
+      } catch (error) {
+        console.error('Error checking auth status:', error);
+        setIsAuthenticated(false);
+      } finally {
+        setLoading(false);
+      }
     };
-    checkPassword();
+    checkAuthStatus();
   }, []);
 
   const login = async (password: string): Promise<boolean> => {
