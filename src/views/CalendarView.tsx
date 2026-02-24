@@ -10,6 +10,19 @@ import {
   Button,
   Grid,
   Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormLabel,
 } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -29,6 +42,11 @@ const CalendarView: React.FC = () => {
   const [entries, setEntries] = useState<TimeEntry[]>([]);
   const [showAllChildren, setShowAllChildren] = useState<{[key: string]: boolean}>({});
   const [hiddenChildren, setHiddenChildren] = useState<{[key: string]: string[]}>({}) // {dateStr: [childId, ...]}
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [exportPeriod, setExportPeriod] = useState<'week' | 'month' | 'custom'>('week');
+  const [exportFormat, setExportFormat] = useState<'csv'>('csv');
+  const [exportStartDate, setExportStartDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [exportEndDate, setExportEndDate] = useState(format(new Date(), 'yyyy-MM-dd'));
 
   // Helper: Get expected children for a specific date
   const getExpectedChildrenForDate = (date: Date): Child[] => {
@@ -200,21 +218,48 @@ const CalendarView: React.FC = () => {
   };
 
   const handleExport = () => {
+    // Open export dialog instead of exporting directly
+    setExportDialogOpen(true);
+    
+    // Pre-set dates based on current view
+    if (viewMode === 'week') {
+      const start = startOfWeek(currentDate, { weekStartsOn: 1 });
+      const end = endOfWeek(currentDate, { weekStartsOn: 1 });
+      setExportStartDate(format(start, 'yyyy-MM-dd'));
+      setExportEndDate(format(end, 'yyyy-MM-dd'));
+      setExportPeriod('week');
+    } else if (viewMode === 'month') {
+      const start = startOfMonth(currentDate);
+      const end = endOfMonth(currentDate);
+      setExportStartDate(format(start, 'yyyy-MM-dd'));
+      setExportEndDate(format(end, 'yyyy-MM-dd'));
+      setExportPeriod('month');
+    } else {
+      setExportStartDate(format(currentDate, 'yyyy-MM-dd'));
+      setExportEndDate(format(currentDate, 'yyyy-MM-dd'));
+      setExportPeriod('custom');
+    }
+  };
+
+  const handleExportConfirm = () => {
     let start: Date;
     let end: Date;
 
-    if (viewMode === 'day') {
-      start = currentDate;
-      end = currentDate;
-    } else if (viewMode === 'week') {
-      start = startOfWeek(currentDate, { weekStartsOn: 1 });
-      end = endOfWeek(currentDate, { weekStartsOn: 1 });
+    if (exportPeriod === 'week') {
+      const weekStart = startOfWeek(new Date(exportStartDate), { weekStartsOn: 1 });
+      start = weekStart;
+      end = endOfWeek(weekStart, { weekStartsOn: 1 });
+    } else if (exportPeriod === 'month') {
+      const monthStart = startOfMonth(new Date(exportStartDate));
+      start = monthStart;
+      end = endOfMonth(monthStart);
     } else {
-      start = startOfMonth(currentDate);
-      end = endOfMonth(currentDate);
+      start = new Date(exportStartDate);
+      end = new Date(exportEndDate);
     }
 
     exportTimeEntries(children, entries, start, end);
+    setExportDialogOpen(false);
   };
 
   const getDisplayDates = (): Date[] => {
@@ -589,6 +634,102 @@ const CalendarView: React.FC = () => {
           ))}
         </Box>
       )}
+
+      {/* Export Dialog */}
+      <Dialog open={exportDialogOpen} onClose={() => setExportDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Exporter les données</DialogTitle>
+        <DialogContent>
+          <Box sx={{ pt: 2 }}>
+            {/* Period Selection */}
+            <FormControl component="fieldset" sx={{ mb: 3 }}>
+              <FormLabel component="legend">Période</FormLabel>
+              <RadioGroup
+                value={exportPeriod}
+                onChange={(e) => {
+                  const period = e.target.value as 'week' | 'month' | 'custom';
+                  setExportPeriod(period);
+                  
+                  // Auto-set dates based on period
+                  if (period === 'week') {
+                    const start = startOfWeek(currentDate, { weekStartsOn: 1 });
+                    const end = endOfWeek(currentDate, { weekStartsOn: 1 });
+                    setExportStartDate(format(start, 'yyyy-MM-dd'));
+                    setExportEndDate(format(end, 'yyyy-MM-dd'));
+                  } else if (period === 'month') {
+                    const start = startOfMonth(currentDate);
+                    const end = endOfMonth(currentDate);
+                    setExportStartDate(format(start, 'yyyy-MM-dd'));
+                    setExportEndDate(format(end, 'yyyy-MM-dd'));
+                  }
+                }}
+              >
+                <FormControlLabel value="week" control={<Radio />} label="Semaine en cours" />
+                <FormControlLabel value="month" control={<Radio />} label="Mois en cours" />
+                <FormControlLabel value="custom" control={<Radio />} label="Période personnalisée" />
+              </RadioGroup>
+            </FormControl>
+
+            {/* Date Range for Custom Period */}
+            {exportPeriod === 'custom' && (
+              <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+                <TextField
+                  label="Date de début"
+                  type="date"
+                  value={exportStartDate}
+                  onChange={(e) => setExportStartDate(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                />
+                <TextField
+                  label="Date de fin"
+                  type="date"
+                  value={exportEndDate}
+                  onChange={(e) => setExportEndDate(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                />
+              </Box>
+            )}
+
+            {/* Format Selection */}
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Format</InputLabel>
+              <Select
+                value={exportFormat}
+                label="Format"
+                onChange={(e) => setExportFormat(e.target.value as 'csv')}
+              >
+                <MenuItem value="csv">CSV (Excel)</MenuItem>
+              </Select>
+            </FormControl>
+
+            {/* Summary */}
+            <Paper sx={{ p: 2, bgcolor: 'grey.50', mt: 3 }}>
+              <Typography variant="caption" sx={{ display: 'block', mb: 1, color: 'text.secondary' }}>
+                Aperçu
+              </Typography>
+              <Typography variant="body2">
+                <strong>Période:</strong> {exportPeriod === 'week' ? 'Semaine' : exportPeriod === 'month' ? 'Mois' : 'Personnalisée'}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Du:</strong> {format(new Date(exportStartDate), 'dd MMMM yyyy', { locale: fr })}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Au:</strong> {format(new Date(exportEndDate), 'dd MMMM yyyy', { locale: fr })}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Format:</strong> {exportFormat.toUpperCase()}
+              </Typography>
+            </Paper>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setExportDialogOpen(false)}>Annuler</Button>
+          <Button onClick={handleExportConfirm} variant="contained" startIcon={<DownloadIcon />}>
+            Exporter
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

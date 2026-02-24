@@ -37,7 +37,7 @@ export const migrateTimeEntry = (entry: any): TimeEntry => {
  */
 export const migrateChild = (child: any): Child => {
   // If defaultSegments doesn't exist but defaultArrivalTime and defaultLeavingTime do,
-  // create a single default segment
+  // create a single default segment with expectedDays
   let defaultSegments: DefaultTimeBlock[] | undefined = child.defaultSegments;
 
   if (
@@ -45,13 +45,27 @@ export const migrateChild = (child: any): Child => {
     child.defaultArrivalTime &&
     child.defaultLeavingTime
   ) {
+    const days =
+      child.expectedDays !== undefined ? child.expectedDays : [1, 2, 3, 4, 5];
     defaultSegments = [
       {
         id: "1",
         arrivalTime: child.defaultArrivalTime,
         leavingTime: child.defaultLeavingTime,
+        days: days,
       },
     ];
+  } else if (defaultSegments) {
+    // Migrate existing defaultSegments to add days if missing
+    defaultSegments = defaultSegments.map((segment: any) => ({
+      ...segment,
+      days:
+        segment.days !== undefined
+          ? segment.days
+          : child.expectedDays !== undefined
+            ? child.expectedDays
+            : [1, 2, 3, 4, 5],
+    }));
   }
 
   return {

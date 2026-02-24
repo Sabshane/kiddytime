@@ -24,10 +24,9 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import CloseIcon from '@mui/icons-material/Close';
 import { Child, TimeEntry, TimeSegment } from '../types';
-import { shouldHaveMeal, shouldHaveSnack } from '../utils/timeUtils';
 
 // Predefined absence reasons
-const ABSENCE_REASONS = ['Malade', 'Vacances', 'Autre'];
+const ABSENCE_REASONS = ['Malade', 'Vacances parents', 'Vacances Adi', 'Autre'];
 
 interface DayEntryCardProps {
   child: Child;
@@ -40,10 +39,22 @@ interface DayEntryCardProps {
 const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdate, onHide }) => {
   const [expanded, setExpanded] = useState(false);
   
+  // Get day of week from date (0=Sunday, 1=Monday, ..., 6=Saturday)
+  const dayOfWeek = new Date(date).getDay();
+  
+  // Filter defaultSegments for current day
+  const getDefaultSegmentsForDay = () => {
+    if (child.defaultSegments && child.defaultSegments.length > 0) {
+      return child.defaultSegments.filter(ds => ds.days.includes(dayOfWeek));
+    }
+    return [];
+  };
+  
   // Create default segments from child's defaultSegments if available
   const createDefaultSegments = (): TimeSegment[] => {
-    if (child.defaultSegments && child.defaultSegments.length > 0) {
-      return child.defaultSegments.map(ds => ({
+    const daySegments = getDefaultSegmentsForDay();
+    if (daySegments.length > 0) {
+      return daySegments.map(ds => ({
         id: ds.id,
         arrivalTime: null, // Start with null to let user fill in
         leavingTime: null,
@@ -136,8 +147,9 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
   };
 
   const handlePrefillDefaults = () => {
-    if (child.defaultSegments && child.defaultSegments.length > 0) {
-      const prefilled: TimeSegment[] = child.defaultSegments.map(ds => ({
+    const daySegments = getDefaultSegmentsForDay();
+    if (daySegments.length > 0) {
+      const prefilled: TimeSegment[] = daySegments.map(ds => ({
         id: ds.id,
         arrivalTime: ds.arrivalTime,
         leavingTime: ds.leavingTime,
@@ -177,18 +189,14 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
   const hasData = currentEntry.segments.some(seg => seg.arrivalTime || seg.leavingTime) || 
                   currentEntry.isAbsent;
 
-  // Déterminer si l'enfant prend le repas/goûter en fonction des horaires
-  const autoMeal = shouldHaveMeal(currentEntry.segments);
-  const autoSnack = shouldHaveSnack(currentEntry.segments);
-  
-  // Utiliser la valeur explicite, sinon la valeur auto calculée, sinon le défaut de l'enfant
+  // Utiliser la valeur explicite, sinon le défaut de l'enfant
   const mealStatus = currentEntry.hasMeal !== null 
     ? currentEntry.hasMeal 
-    : (autoMeal ? true : child.hasMeal);
+    : child.hasMeal;
   
   const snackStatus = currentEntry.hasSnack !== null 
     ? currentEntry.hasSnack 
-    : (autoSnack ? true : child.hasSnack);
+    : child.hasSnack;
   
   const duration = calculateTotalDuration();
 
@@ -395,7 +403,7 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
               <>
                 {/* Time Segments */}
                 <Box sx={{ mt: 2 }}>
-                  {child.defaultSegments && child.defaultSegments.length > 0 && (
+                  {getDefaultSegmentsForDay().length > 0 && (
                     <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
                       <Button
                         size="small"
@@ -461,10 +469,12 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
                     <Checkbox
                       checked={mealStatus}
                       onChange={(e) => handleMealChange(e.target.checked)}
+                      disabled={currentEntry.isAbsent}
                     />
                   }
                   label="Prend le repas"
                   sx={{ mt: 2 }}
+                  disabled={currentEntry.isAbsent}
                 />
 
                 {/* Snack Checkbox */}
@@ -473,10 +483,12 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
                     <Checkbox
                       checked={snackStatus}
                       onChange={(e) => handleSnackChange(e.target.checked)}
+                      disabled={currentEntry.isAbsent}
                     />
                   }
                   label="Prend le goûter"
                   sx={{ mt: 1 }}
+                  disabled={currentEntry.isAbsent}
                 />
 
                 {/* Notes */}

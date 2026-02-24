@@ -42,7 +42,7 @@ const ChildrenManagement: React.FC = () => {
     hasMeal: true,
     hasSnack: true,
     expectedDays: [1, 2, 3, 4, 5] as number[], // Lundi à Vendredi par défaut
-    defaultSegments: [{ id: '1', arrivalTime: '08:00', leavingTime: '17:00' }] as DefaultTimeBlock[],
+    defaultSegments: [{ id: '1', arrivalTime: '08:00', leavingTime: '17:00', days: [1, 2, 3, 4, 5] }] as DefaultTimeBlock[],
   });
 
   useEffect(() => {
@@ -61,7 +61,7 @@ const ChildrenManagement: React.FC = () => {
       // Use defaultSegments if available, otherwise create from legacy fields
       const segments = child.defaultSegments && child.defaultSegments.length > 0
         ? child.defaultSegments
-        : [{ id: '1', arrivalTime: child.defaultArrivalTime || '08:00', leavingTime: child.defaultLeavingTime || '17:00' }];
+        : [{ id: '1', arrivalTime: child.defaultArrivalTime || '08:00', leavingTime: child.defaultLeavingTime || '17:00', days: child.expectedDays ?? [1, 2, 3, 4, 5] }];
       
       setFormData({
         name: child.name,
@@ -81,7 +81,7 @@ const ChildrenManagement: React.FC = () => {
         hasMeal: true,
         hasSnack: true,
         expectedDays: [1, 2, 3, 4, 5],
-        defaultSegments: [{ id: '1', arrivalTime: '08:00', leavingTime: '17:00' }],
+        defaultSegments: [{ id: '1', arrivalTime: '08:00', leavingTime: '17:00', days: [1, 2, 3, 4, 5] }],
       });
     }
     setDialogOpen(true);
@@ -132,6 +132,7 @@ const ChildrenManagement: React.FC = () => {
       id: Date.now().toString(),
       arrivalTime: '08:00',
       leavingTime: '12:00',
+      days: [1, 2, 3, 4, 5], // Lundi à Vendredi par défaut
     };
     setFormData({
       ...formData,
@@ -153,6 +154,15 @@ const ChildrenManagement: React.FC = () => {
       ...formData,
       defaultSegments: formData.defaultSegments.map(s =>
         s.id === segmentId ? { ...s, [field]: value } : s
+      ),
+    });
+  };
+
+  const handleSegmentDaysChange = (segmentId: string, days: number[]) => {
+    setFormData({
+      ...formData,
+      defaultSegments: formData.defaultSegments.map(s =>
+        s.id === segmentId ? { ...s, days } : s
       ),
     });
   };
@@ -381,7 +391,7 @@ const ChildrenManagement: React.FC = () => {
                     borderColor: 'divider',
                   }}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                     <Typography variant="caption" sx={{ fontWeight: 600, minWidth: 70 }}>
                       Bloc {idx + 1}
                     </Typography>
@@ -419,6 +429,58 @@ const ChildrenManagement: React.FC = () => {
                         <RemoveIcon fontSize="small" />
                       </IconButton>
                     )}
+                  </Box>
+                  
+                  {/* Sélecteur de jours pour ce bloc */}
+                  <Box>
+                    <Typography variant="caption" sx={{ display: 'block', mb: 1, color: 'text.secondary' }}>
+                      Jours où ce bloc s'applique
+                    </Typography>
+                    <ToggleButtonGroup
+                      value={segment.days}
+                      onChange={(_, newDays) => {
+                        if (newDays.length > 0) {
+                          handleSegmentDaysChange(segment.id, newDays.sort((a: number, b: number) => a - b));
+                        }
+                      }}
+                      aria-label="jours du bloc"
+                      size="small"
+                      sx={{ 
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 0.5,
+                      }}
+                    >
+                      {[
+                        { value: 1, label: 'Lun' },
+                        { value: 2, label: 'Mar' },
+                        { value: 3, label: 'Mer' },
+                        { value: 4, label: 'Jeu' },
+                        { value: 5, label: 'Ven' },
+                        { value: 6, label: 'Sam' },
+                        { value: 0, label: 'Dim' },
+                      ].map((day) => (
+                        <ToggleButton
+                          key={day.value}
+                          value={day.value}
+                          sx={{
+                            flex: '0 0 auto',
+                            minWidth: 40,
+                            py: 0.5,
+                            fontSize: '0.75rem',
+                            '&.Mui-selected': {
+                              bgcolor: 'primary.main',
+                              color: 'white',
+                              '&:hover': {
+                                bgcolor: 'primary.dark',
+                              },
+                            },
+                          }}
+                        >
+                          {day.label}
+                        </ToggleButton>
+                      ))}
+                    </ToggleButtonGroup>
                   </Box>
                 </Paper>
               ))}

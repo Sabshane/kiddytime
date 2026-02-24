@@ -48,19 +48,17 @@ router.get("/:childId/:date", (req, res) => {
 // Create or update an entry
 router.post("/", (req, res) => {
   try {
-    const { childId, date, arrivalTime, leavingTime, notes } = req.body;
+    const entryData = req.body;
+    const { childId, date } = entryData;
 
     if (!childId || !date) {
       return res.status(400).json({ error: "childId et date requis" });
     }
 
+    // Create entry with all fields from request body
     const entry = {
+      ...entryData,
       id: `${childId}-${date}`,
-      childId,
-      date,
-      arrivalTime: arrivalTime || null,
-      leavingTime: leavingTime || null,
-      notes: notes || "",
       updatedAt: new Date().toISOString(),
     };
 
@@ -76,7 +74,7 @@ router.post("/", (req, res) => {
 router.put("/:childId/:date", (req, res) => {
   try {
     const { childId, date } = req.params;
-    const { arrivalTime, leavingTime, notes } = req.body;
+    const updates = req.body;
 
     const existing = entriesDB.findByChildAndDate(childId, date);
 
@@ -84,11 +82,8 @@ router.put("/:childId/:date", (req, res) => {
       id: `${childId}-${date}`,
       childId,
       date,
-      arrivalTime:
-        arrivalTime !== undefined ? arrivalTime : existing?.arrivalTime || null,
-      leavingTime:
-        leavingTime !== undefined ? leavingTime : existing?.leavingTime || null,
-      notes: notes !== undefined ? notes : existing?.notes || "",
+      ...existing,
+      ...updates,
       updatedAt: new Date().toISOString(),
     };
 

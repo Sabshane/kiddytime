@@ -1,7 +1,6 @@
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Child, TimeEntry } from "../types";
-import { shouldHaveMeal, shouldHaveSnack } from "./timeUtils";
 
 /**
  * Convert data to CSV format and trigger download
@@ -85,29 +84,23 @@ export const exportTimeEntries = (
         let segmentsText = "-";
         let duration = "-";
 
-        // Calculate meal and snack status with auto-detection
-        const autoMeal = shouldHaveMeal(entry.segments);
-        const autoSnack = shouldHaveSnack(entry.segments);
+        // Use explicit value or child default
         const hasMeal =
           entry.hasMeal !== null
             ? entry.hasMeal
               ? "Oui"
               : "Non"
-            : autoMeal
+            : child.hasMeal
               ? "Oui"
-              : child.hasMeal
-                ? "Oui"
-                : "Non";
+              : "Non";
         const hasSnack =
           entry.hasSnack !== null
             ? entry.hasSnack
               ? "Oui"
               : "Non"
-            : autoSnack
+            : child.hasSnack
               ? "Oui"
-              : child.hasSnack
-                ? "Oui"
-                : "Non";
+              : "Non";
 
         if (entry.isAbsent) {
           status = "Absent";

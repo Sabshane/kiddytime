@@ -27,19 +27,26 @@ const FullCalendarView: React.FC = () => {
     }
   }, [children, entries]);
 
-  const loadData = async () => {
+  const loadData = async (start?: Date, end?: Date) => {
     const childrenData = await StorageService.getChildren();
     setChildren(childrenData);
     
     // Load entries for the current month and adjacent months
     const now = new Date();
-    const startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const endDate = new Date(now.getFullYear(), now.getMonth() + 2, 0);
+    const startDate = start || new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const endDate = end || new Date(now.getFullYear(), now.getMonth() + 2, 0);
     const entriesData = await StorageService.getEntriesForDateRange(
       startDate.toISOString().split('T')[0],
       endDate.toISOString().split('T')[0]
     );
     setEntries(entriesData);
+  };
+
+  const handleDatesSet = (dateInfo: any) => {
+    // When user navigates in calendar, load data for visible range
+    const start = new Date(dateInfo.start);
+    const end = new Date(dateInfo.end);
+    loadData(start, end);
   };
 
   const generateEvents = () => {
@@ -267,6 +274,7 @@ const FullCalendarView: React.FC = () => {
           locale={frLocale}
           events={events}
           eventClick={handleEventClick}
+          datesSet={handleDatesSet}
           height="auto"
           slotMinTime="06:00:00"
           slotMaxTime="20:00:00"

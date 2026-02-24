@@ -2,6 +2,7 @@ export interface DefaultTimeBlock {
   id: string;
   arrivalTime: string; // Format: "HH:mm"
   leavingTime: string; // Format: "HH:mm"
+  days: number[]; // Jours de la semaine où ce bloc s'applique (0=Dimanche, 1=Lundi, ..., 6=Samedi)
 }
 
 export interface Child {
