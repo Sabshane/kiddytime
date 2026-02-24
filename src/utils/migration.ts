@@ -1,4 +1,4 @@
-import { TimeEntry, TimeSegment, Child } from "../types";
+import { TimeEntry, TimeSegment, Child, DefaultTimeBlock } from "../types";
 
 /**
  * Migrate old TimeEntry format to new format
@@ -33,9 +33,27 @@ export const migrateTimeEntry = (entry: any): TimeEntry => {
 
 /**
  * Migrate old Child format to new format
- * Adds hasMeal, hasSnack, expectedDays fields if missing
+ * Adds hasMeal, hasSnack, expectedDays, defaultSegments fields if missing
  */
 export const migrateChild = (child: any): Child => {
+  // If defaultSegments doesn't exist but defaultArrivalTime and defaultLeavingTime do,
+  // create a single default segment
+  let defaultSegments: DefaultTimeBlock[] | undefined = child.defaultSegments;
+
+  if (
+    !defaultSegments &&
+    child.defaultArrivalTime &&
+    child.defaultLeavingTime
+  ) {
+    defaultSegments = [
+      {
+        id: "1",
+        arrivalTime: child.defaultArrivalTime,
+        leavingTime: child.defaultLeavingTime,
+      },
+    ];
+  }
+
   return {
     ...child,
     hasMeal: child.hasMeal !== undefined ? child.hasMeal : true,
@@ -43,6 +61,7 @@ export const migrateChild = (child: any): Child => {
     expectedDays:
       child.expectedDays !== undefined ? child.expectedDays : [1, 2, 3, 4, 5], // Lundi à Vendredi par défaut
     absentDays: child.absentDays || [],
+    defaultSegments: defaultSegments,
   };
 };
 

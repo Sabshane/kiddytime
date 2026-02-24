@@ -1,8 +1,15 @@
+export interface DefaultTimeBlock {
+  id: string;
+  arrivalTime: string; // Format: "HH:mm"
+  leavingTime: string; // Format: "HH:mm"
+}
+
 export interface Child {
   id: string;
   name: string;
-  defaultArrivalTime: string; // Format: "HH:mm"
-  defaultLeavingTime: string; // Format: "HH:mm"
+  defaultArrivalTime: string; // Format: "HH:mm" - Deprecated, kept for backward compatibility
+  defaultLeavingTime: string; // Format: "HH:mm" - Deprecated, kept for backward compatibility
+  defaultSegments?: DefaultTimeBlock[]; // Blocs horaires par défaut (plusieurs possibles)
   hasMeal: boolean; // Prend le repas par défaut
   hasSnack: boolean; // Prend le goûter par défaut
   expectedDays: number[]; // Jours de présence attendus (0=Dimanche, 1=Lundi, ..., 6=Samedi)

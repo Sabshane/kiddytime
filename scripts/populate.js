@@ -39,6 +39,7 @@ const children = [
     hasMeal: true,
     hasSnack: true,
     expectedDays: [1, 2, 3, 4, 5], // Lundi à Vendredi
+    defaultSegments: [{ id: "1", arrivalTime: "08:00", leavingTime: "17:00" }],
   },
   {
     id: "child-2",
@@ -48,6 +49,7 @@ const children = [
     hasMeal: true,
     hasSnack: true,
     expectedDays: [1, 2, 3, 4, 5], // Lundi à Vendredi
+    defaultSegments: [{ id: "1", arrivalTime: "08:30", leavingTime: "16:30" }],
   },
   {
     id: "child-3",
@@ -57,6 +59,10 @@ const children = [
     hasMeal: false,
     hasSnack: true,
     expectedDays: [1, 3, 5], // Lundi, Mercredi, Vendredi
+    defaultSegments: [
+      { id: "1", arrivalTime: "09:00", leavingTime: "12:00" },
+      { id: "2", arrivalTime: "13:30", leavingTime: "17:30" },
+    ],
   },
 ];
 

@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" fill="none">
-     <rect width="192" height="192" fill="#1976d2" rx="32" />
-     <path
-          d="M96 40c-8.837 0-16 7.163-16 16v16H64c-8.837 0-16 7.163-16 16v48c0 8.837 7.163 16 16 16h64c8.837 0 16-7.163 16-16V88c0-8.837-7.163-16-16-16h-16V56c0-8.837-7.163-16-16-16zm0 8c4.418 0 8 3.582 8 8v16H88V56c0-4.418 3.582-8 8-8zM64 80h64c4.418 0 8 3.582 8 8v48c0 4.418-3.582 8-8 8H64c-4.418 0-8-3.582-8-8V88c0-4.418 3.582-8 8-8zm32 20c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12z"
-          fill="white" />
-     <text x="96" y="170" font-family="Arial, sans-serif" font-size="32" font-weight="bold"
-          fill="white" text-anchor="middle">KT</text>
-</svg>

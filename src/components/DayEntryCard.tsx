@@ -40,12 +40,25 @@ interface DayEntryCardProps {
 const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdate, onHide }) => {
   const [expanded, setExpanded] = useState(false);
   
+  // Create default segments from child's defaultSegments if available
+  const createDefaultSegments = (): TimeSegment[] => {
+    if (child.defaultSegments && child.defaultSegments.length > 0) {
+      return child.defaultSegments.map(ds => ({
+        id: ds.id,
+        arrivalTime: null, // Start with null to let user fill in
+        leavingTime: null,
+      }));
+    }
+    // Fallback to single empty segment
+    return [{ id: '1', arrivalTime: null, leavingTime: null }];
+  };
+  
   // Work directly with props, no local state
   const currentEntry: TimeEntry = entry || {
     id: `${child.id}-${date}`,
     childId: child.id,
     date,
-    segments: [{ id: '1', arrivalTime: null, leavingTime: null }],
+    segments: createDefaultSegments(),
     isAbsent: false,
     hasMeal: null,
     hasSnack: null,
@@ -119,6 +132,17 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
     if (currentEntry.segments.length > 1) {
       const updatedSegments = currentEntry.segments.filter(seg => seg.id !== segmentId);
       onUpdate({ ...currentEntry, segments: updatedSegments });
+    }
+  };
+
+  const handlePrefillDefaults = () => {
+    if (child.defaultSegments && child.defaultSegments.length > 0) {
+      const prefilled: TimeSegment[] = child.defaultSegments.map(ds => ({
+        id: ds.id,
+        arrivalTime: ds.arrivalTime,
+        leavingTime: ds.leavingTime,
+      }));
+      onUpdate({ ...currentEntry, segments: prefilled });
     }
   };
 
@@ -371,6 +395,22 @@ const DayEntryCard: React.FC<DayEntryCardProps> = ({ child, entry, date, onUpdat
               <>
                 {/* Time Segments */}
                 <Box sx={{ mt: 2 }}>
+                  {child.defaultSegments && child.defaultSegments.length > 0 && (
+                    <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={handlePrefillDefaults}
+                        sx={{ 
+                          textTransform: 'none',
+                          fontSize: '0.75rem',
+                          borderStyle: 'dashed',
+                        }}
+                      >
+                        ⚡ Pré-remplir les horaires
+                      </Button>
+                    </Box>
+                  )}
                   {currentEntry.segments.map((segment, idx) => (
                     <Box key={segment.id} sx={{ display: 'flex', gap: 1, mb: 2, alignItems: 'center' }}>
                       <Typography variant="caption" sx={{ minWidth: 60 }}>

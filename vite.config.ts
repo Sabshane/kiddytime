@@ -8,7 +8,12 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["vite.svg", "apple-touch-icon.svg"],
+      includeAssets: [
+        "vite.svg",
+        "apple-touch-icon.svg",
+        "icon-192.png",
+        "icon-512.png",
+      ],
       manifest: {
         name: "KiddyTime - Children Time Tracker",
         short_name: "KiddyTime",
@@ -19,20 +24,20 @@ export default defineConfig({
         orientation: "portrait",
         icons: [
           {
-            src: "pwa-192x192.svg",
+            src: "icon-192.png",
             sizes: "192x192",
-            type: "image/svg+xml",
+            type: "image/png",
           },
           {
-            src: "pwa-512x512.svg",
+            src: "icon-512.png",
             sizes: "512x512",
-            type: "image/svg+xml",
+            type: "image/png",
           },
           {
-            src: "pwa-512x512.svg",
+            src: "icon-512.png",
             sizes: "512x512",
-            type: "image/svg+xml",
-            purpose: "any",
+            type: "image/png",
+            purpose: "any maskable",
           },
         ],
       },

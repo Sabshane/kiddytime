@@ -26,7 +26,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import DownloadIcon from '@mui/icons-material/Download';
-import { Child } from '../types';
+import RemoveIcon from '@mui/icons-material/Remove';
+import { Child, DefaultTimeBlock } from '../types';
 import { StorageService } from '../services/storage';
 import { exportChildrenList } from '../utils/export';
 
@@ -41,6 +42,7 @@ const ChildrenManagement: React.FC = () => {
     hasMeal: true,
     hasSnack: true,
     expectedDays: [1, 2, 3, 4, 5] as number[], // Lundi à Vendredi par défaut
+    defaultSegments: [{ id: '1', arrivalTime: '08:00', leavingTime: '17:00' }] as DefaultTimeBlock[],
   });
 
   useEffect(() => {
@@ -55,6 +57,12 @@ const ChildrenManagement: React.FC = () => {
   const handleOpenDialog = (child?: Child) => {
     if (child) {
       setEditingChild(child);
+      
+      // Use defaultSegments if available, otherwise create from legacy fields
+      const segments = child.defaultSegments && child.defaultSegments.length > 0
+        ? child.defaultSegments
+        : [{ id: '1', arrivalTime: child.defaultArrivalTime || '08:00', leavingTime: child.defaultLeavingTime || '17:00' }];
+      
       setFormData({
         name: child.name,
         defaultArrivalTime: child.defaultArrivalTime,
@@ -62,6 +70,7 @@ const ChildrenManagement: React.FC = () => {
         hasMeal: child.hasMeal ?? true,
         hasSnack: child.hasSnack ?? true,
         expectedDays: child.expectedDays ?? [1, 2, 3, 4, 5],
+        defaultSegments: segments,
       });
     } else {
       setEditingChild(null);
@@ -72,6 +81,7 @@ const ChildrenManagement: React.FC = () => {
         hasMeal: true,
         hasSnack: true,
         expectedDays: [1, 2, 3, 4, 5],
+        defaultSegments: [{ id: '1', arrivalTime: '08:00', leavingTime: '17:00' }],
       });
     }
     setDialogOpen(true);
@@ -85,15 +95,23 @@ const ChildrenManagement: React.FC = () => {
   const handleSubmit = async () => {
     if (!formData.name.trim()) return;
 
+    // Keep backward compatibility by setting defaultArrivalTime/defaultLeavingTime from first segment
+    const firstSegment = formData.defaultSegments[0];
+    const childData = {
+      ...formData,
+      defaultArrivalTime: firstSegment.arrivalTime,
+      defaultLeavingTime: firstSegment.leavingTime,
+    };
+
     if (editingChild) {
       await StorageService.updateChild({
         ...editingChild,
-        ...formData,
+        ...childData,
       });
     } else {
       const newChild: Child = {
         id: Date.now().toString(),
-        ...formData,
+        ...childData,
       };
       await StorageService.addChild(newChild);
     }
@@ -107,6 +125,36 @@ const ChildrenManagement: React.FC = () => {
       await StorageService.deleteChild(childId);
       await loadChildren();
     }
+  };
+
+  const handleAddSegment = () => {
+    const newSegment: DefaultTimeBlock = {
+      id: Date.now().toString(),
+      arrivalTime: '08:00',
+      leavingTime: '12:00',
+    };
+    setFormData({
+      ...formData,
+      defaultSegments: [...formData.defaultSegments, newSegment],
+    });
+  };
+
+  const handleRemoveSegment = (segmentId: string) => {
+    if (formData.defaultSegments.length > 1) {
+      setFormData({
+        ...formData,
+        defaultSegments: formData.defaultSegments.filter(s => s.id !== segmentId),
+      });
+    }
+  };
+
+  const handleSegmentChange = (segmentId: string, field: 'arrivalTime' | 'leavingTime', value: string) => {
+    setFormData({
+      ...formData,
+      defaultSegments: formData.defaultSegments.map(s =>
+        s.id === segmentId ? { ...s, [field]: value } : s
+      ),
+    });
   };
 
   return (
@@ -301,24 +349,80 @@ const ChildrenManagement: React.FC = () => {
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               margin="normal"
             />
-            <TextField
-              fullWidth
-              label="Heure d'arrivée par défaut"
-              type="time"
-              value={formData.defaultArrivalTime}
-              onChange={(e) => setFormData({ ...formData, defaultArrivalTime: e.target.value })}
-              margin="normal"
-              InputLabelProps={{ shrink: true }}
-            />
-            <TextField
-              fullWidth
-              label="Heure de départ par défaut"
-              type="time"
-              value={formData.defaultLeavingTime}
-              onChange={(e) => setFormData({ ...formData, defaultLeavingTime: e.target.value })}
-              margin="normal"
-              InputLabelProps={{ shrink: true }}
-            />
+            
+            {/* Blocs horaires par défaut */}
+            <Box sx={{ mt: 3, mb: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                  Blocs horaires par défaut
+                </Typography>
+                <Button
+                  size="small"
+                  startIcon={<AddIcon />}
+                  onClick={handleAddSegment}
+                  sx={{ 
+                    textTransform: 'none',
+                    fontWeight: 600,
+                  }}
+                >
+                  Ajouter un bloc
+                </Button>
+              </Box>
+              
+              {formData.defaultSegments.map((segment, idx) => (
+                <Paper 
+                  key={segment.id} 
+                  elevation={1}
+                  sx={{ 
+                    p: 2, 
+                    mb: 1.5,
+                    bgcolor: 'grey.50',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 600, minWidth: 70 }}>
+                      Bloc {idx + 1}
+                    </Typography>
+                    <TextField
+                      size="small"
+                      label="Arrivée"
+                      type="time"
+                      value={segment.arrivalTime}
+                      onChange={(e) => handleSegmentChange(segment.id, 'arrivalTime', e.target.value)}
+                      InputLabelProps={{ shrink: true }}
+                      sx={{ flex: 1 }}
+                    />
+                    <Typography sx={{ color: 'text.secondary' }}>→</Typography>
+                    <TextField
+                      size="small"
+                      label="Départ"
+                      type="time"
+                      value={segment.leavingTime}
+                      onChange={(e) => handleSegmentChange(segment.id, 'leavingTime', e.target.value)}
+                      InputLabelProps={{ shrink: true }}
+                      sx={{ flex: 1 }}
+                    />
+                    {formData.defaultSegments.length > 1 && (
+                      <IconButton
+                        size="small"
+                        onClick={() => handleRemoveSegment(segment.id)}
+                        sx={{ 
+                          bgcolor: 'error.light',
+                          color: 'white',
+                          '&:hover': {
+                            bgcolor: 'error.main',
+                          },
+                        }}
+                      >
+                        <RemoveIcon fontSize="small" />
+                      </IconButton>
+                    )}
+                  </Box>
+                </Paper>
+              ))}
+            </Box>
             
             {/* Sélecteur des jours de présence attendus */}
             <Box sx={{ mt: 3, mb: 2 }}>
