@@ -7,7 +7,7 @@
 #### Section: Construction de l'application
 
 ```
-npm run build
+npm install && npm run build
 ```
 
 ☑️ Cochez : "Construire automatiquement l'application une fois l'installation terminée"
@@ -15,11 +15,13 @@ npm run build
 #### Section: Exécution de l'application
 
 **Commande d'exécution:**
+
 ```
 npm start
 ```
 
 **Port d'écoute:**
+
 ```
 3000
 ```
@@ -32,12 +34,12 @@ npm start
 
 Dans l'interface Infomaniak > Variables d'environnement > Ajouter :
 
-| Variable | Valeur | Description |
-|----------|--------|-------------|
-| `PORT` | `3000` | Port du serveur |
-| `NODE_ENV` | `production` | Mode production |
-| `SESSION_SECRET` | `[GÉNÉRER]` | Secret sessions (voir ci-dessous) |
-| `DATA_DIR` | `./server/data` | Dossier données |
+| Variable         | Valeur          | Description                       |
+| ---------------- | --------------- | --------------------------------- |
+| `PORT`           | `3000`          | Port du serveur                   |
+| `NODE_ENV`       | `production`    | Mode production                   |
+| `SESSION_SECRET` | `[GÉNÉRER]`     | Secret sessions (voir ci-dessous) |
+| `DATA_DIR`       | `./server/data` | Dossier données                   |
 
 ### Générer SESSION_SECRET sécurisé
 
@@ -56,6 +58,7 @@ Copier-coller la valeur générée (ex: `a8f5f167f44f4964e6c998dee827110c055c29d
 ### Via Git
 
 1. Poussez vos changements :
+
    ```bash
    git push
    ```
@@ -143,7 +146,7 @@ tar -czf backup-$(date +%Y%m%d).tar.gz server/data/
 - [ ] `NODE_ENV=production` défini
 - [ ] `PORT=3000` configuré
 - [ ] Git repository connecté (si déploiement Git)
-- [ ] Build command: `npm run build`
+- [ ] Build command: `npm install && npm run build`
 - [ ] Start command: `npm start`
 - [ ] Auto-build activé ✅
 - [ ] Auto-start activé ✅
@@ -162,6 +165,7 @@ tar -czf backup-$(date +%Y%m%d).tar.gz server/data/
 ### Alertes recommandées
 
 Dans l'interface Infomaniak, configurez des alertes pour :
+
 - Application down
 - Utilisation CPU > 80%
 - Utilisation RAM > 80%
@@ -173,6 +177,7 @@ Dans l'interface Infomaniak, configurez des alertes pour :
 **Version app** : 0.1.0
 
 Pour plus de détails :
+
 - [INFOMANIAK_CONFIG.md](./INFOMANIAK_CONFIG.md) - Configuration complète
 - [INFOMANIAK_UPDATE.md](./INFOMANIAK_UPDATE.md) - Guide de mise à jour
 - [DEPLOYMENT_NODEJS.md](./DEPLOYMENT_NODEJS.md) - Documentation détaillée

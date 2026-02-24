@@ -7,12 +7,12 @@
 **Commande de construction :**
 
 ```bash
-npm run build
+npm install && npm run build
 ```
 
 ✅ **Construire automatiquement l'application une fois l'installation terminée** : **Coché**
 
-> Cette commande crée le dossier `dist/` avec les fichiers React optimisés pour la production.
+> Cette commande installe les dépendances puis crée le dossier `dist/` avec les fichiers React optimisés.
 
 ### Exécution de l'application
 
@@ -53,7 +53,8 @@ DATA_DIR=./server/data
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-**⚠️ CRITIQUE** : 
+**⚠️ CRITIQUE** :
+
 - Ne JAMAIS commiter le `SESSION_SECRET` dans Git
 - Utilisez une valeur unique par environnement
 - Minimum 32 caractères aléatoires
@@ -62,14 +63,14 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ## 📦 Résumé rapide
 
-| Paramètre               | Valeur                    |
-|-------------------------|---------------------------|
-| **Build Command**       | `npm run build`           |
-| **Start Command**       | `npm start`               |
-| **Port**                | `3000`                    |
-| **Auto Build**          | ✅ Oui                    |
-| **Auto Start**          | ✅ Oui                    |
-| **Node Version**        | 18.x ou supérieur         |
+| Paramètre         | Valeur            |
+| ----------------- | ----------------- |
+| **Build Command** | `npm run build`   |
+| **Start Command** | `npm start`       |
+| **Port**          | `3000`            |
+| **Auto Build**    | ✅ Oui            |
+| **Auto Start**    | ✅ Oui            |
+| **Node Version**  | 18.x ou supérieur |
 
 ---
 
@@ -90,8 +91,9 @@ curl https://votre-domaine.ch/api/health
 ```
 
 Réponse attendue :
+
 ```json
-{"status":"ok","timestamp":"2026-02-24T..."}
+{ "status": "ok", "timestamp": "2026-02-24T..." }
 ```
 
 ### 2. Frontend accessible
@@ -158,4 +160,3 @@ Ouvrez `https://votre-domaine.ch` dans votre navigateur.
 ---
 
 **Dernière mise à jour** : 24 février 2026
-

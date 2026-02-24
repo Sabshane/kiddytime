@@ -33,10 +33,9 @@ Si votre app est connectée à un repository Git sur Infomaniak :
    - Allez dans **Hébergement** > **Node.js**
    - Cliquez sur **Redéployer** ou **Pull & Restart**
    - Infomaniak va automatiquement :
-     - Récupérer le nouveau code
-     - Installer les dépendances (`npm install`)
-     - Construire l'application (`npm run build`)
-     - Redémarrer le serveur (`npm start`)
+     - Récupérer le nouveau code (git pull)
+     - Exécuter la commande de build: `npm install && npm run build`
+     - Redémarrer le serveur: `npm start`
 
 3. **Vérifiez les logs**
    - Dans l'interface Infomaniak, consultez les logs
